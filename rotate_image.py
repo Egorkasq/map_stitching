@@ -1,6 +1,5 @@
 import cv2
 import os
-import numpy
 import glob
 
 
@@ -18,5 +17,5 @@ def rotate_image_from_folder(image_path):
 
 
 if __name__ == "__main__":
-    image_path = '/home/error/Documents/map_stitch/image'
+    image_path = './map_stitch/image'
     rotate_image_from_folder(image_path)

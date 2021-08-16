@@ -1,10 +1,15 @@
+import numpy as np
 import os
 import glob
 import cv2
-import numpy as np
+
 
 
 def take_center_of_image(image):
+    """
+    Из-за особенностей снимаемой линзы, на краях изображений образуется наибольшее искревление, поэтому
+    необходимо искать особые точки только в центральной части изображения
+    """
     image = image[int(image.shape[0] * 0.25): int(image.shape[0] * 0.75),
             int(image.shape[1] * 0.25): int(image.shape[1] * 0.75)]
     return image
@@ -16,9 +21,12 @@ def calculate_matches() -> list:
 
 def change_size_of_image(image, scale_percent):
     """
+    Когда изображения слишком большого размера из необходдимо слегка уменьшить,
+    так как разрешение слишком большое и количество точек, которые воспринимается как уникальные много,
+    и многие ошибочно воспринмаются как пары
     :param image:
-    :param scale_percent:
-    :return:
+    :param scale_percent: степень сжатия (10 %, 20% ...)
+    :return: bvtymityyjt bpj,hf;tybt
     """
     if scale_percent == 100:
         return image
@@ -32,11 +40,13 @@ def change_size_of_image(image, scale_percent):
 
 def create_panorama(image_path, result_path, expansion, scale_percent=100, gaussian_blur=0):
     """
-    :param scale_percent:
+    :param scale_percent: степень сжатия
     :param image_path: folder with images
     :param expansion: expansion of the searched files
     :param scale_percent: used for reduce original images (helpful, when ultimate map is big)
-    :param gaussian_blur: used for keypoint detect (use 3, 6, 9, 11 ....)
+    :param gaussian_blur: used for keypoint detect (use 3, 6, 9, 11 ....) полезно иногда размыть изображение
+    перед сшитием, не понимаю как, но иногда этот вариант срабатывает, когда зона перекрытия небольшая
+
     :return:
     """
     list_of_images = os.path.join(image_path, expansion)
@@ -85,6 +95,7 @@ def create_panorama(image_path, result_path, expansion, scale_percent=100, gauss
         if len(matches) < 5:
             print('not enought points for stitching. Process Stopping on {} images. Restarting from {}... '.
                   format(num, file))
+
             print('problem file is {}'.format(file))
             cv2.imwrite('{}/{}.JPG'.format(result_path, num), base_image)
             base_image = cv2.imread(list_of_images[num + 1], 0)
@@ -125,8 +136,8 @@ def create_panorama(image_path, result_path, expansion, scale_percent=100, gauss
 
 
 if __name__ == '__main__':
-    img_path = '/home/error/PycharmProjects/map_stitching/images'
-    res_path = '/home/error/PycharmProjects/map_stitching/results'
+    img_path = './map_stitching/images'
+    res_path = './map_stitching/results'
     img_path = os.path.join(img_path)
     print(img_path)
     img = create_panorama(img_path, res_path, '*.JPG', scale_percent=30, gaussian_blur=7)
